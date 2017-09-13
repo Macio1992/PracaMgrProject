@@ -2,8 +2,7 @@
 #define Graph_H
 
 #include "Edge.h"
-#include <vector>
-#include <stack>
+#include <set>
 
 using namespace std;
 
@@ -11,13 +10,15 @@ class Graph
 {
 public:
 	Graph();
-	~Graph();
-	
+    ~Graph();
+    void fillSet();
+    void print();
+    bool checkIfGraphConnected(set<Edge>&, int);
+    bool checkIfEdgeExistsInGraph(Edge);
 
 private:
-	vector<Edge> edges;
-	vector<int> vertexes;
-
+	set<Edge> edges;
+	set<int> vertexes;
 };
 
 #endif // !Graph_H

@@ -12,12 +12,16 @@ Edge::Edge(int aa, int bb) {
 
 Edge::~Edge(){}
 
-bool Edge::operator==(Edge e) {
+bool Edge::operator==(const Edge &e) const {
 	return (a == e.getB() && b == e.getA()) ? true : false;
 }
 
 bool Edge::operator==(int v) {
 	return (a == v || b == v);
+}
+
+bool Edge::operator<(const Edge &e) const{
+	return true;
 }
 
 int Edge::getA() {
@@ -36,7 +40,7 @@ void Edge::setB(int bb) {
 	b = bb;
 }
 
-string Edge::toString() {
+string Edge::toString() const{
 
 	stringstream stm;
 

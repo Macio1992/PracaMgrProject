@@ -10,13 +10,14 @@ class Edge
 public:
 	Edge(int, int);
 	~Edge();
-	bool operator==(Edge);
+	bool operator==(const Edge&) const;
 	bool operator==(int);
+	bool operator<(const Edge&) const;
 	int getA();
 	void setA(int);
 	int getB();
 	void setB(int);
-	string toString();
+	string toString() const;
 
 private:
 	int a;
