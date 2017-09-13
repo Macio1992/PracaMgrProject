@@ -9,7 +9,7 @@ int main (){
 
     g.fillSet();
     g.print();
-
+    g.determineEulerCycle();
 
     return 0;
 }

@@ -5,26 +5,23 @@
 
 using namespace std;
 
-Edge::Edge(int aa, int bb) { 
-	a = aa;
-	b = bb;
-}
+Edge::Edge(int aa, int bb) : a(aa), b(bb) {}
 
 Edge::~Edge(){}
 
-bool Edge::operator==(const Edge &e) const {
-	return (a == e.getB() && b == e.getA()) ? true : false;
+bool Edge::operator()(Edge edge){
+	return (edge.getA() == a && edge.getB() == b);
 }
 
-bool Edge::operator==(int v) {
-	return (a == v || b == v);
+bool Edge::operator()(int v){
+	return (v == a || v == b);
 }
 
 bool Edge::operator<(const Edge &e) const{
 	return true;
 }
 
-int Edge::getA() {
+int Edge::getA() const{
 	return a;
 }
 
@@ -32,7 +29,7 @@ void Edge::setA(int aa) {
 	a = aa;
 }
 
-int Edge::getB() {
+int Edge::getB() const{
 	return b;
 }
 
