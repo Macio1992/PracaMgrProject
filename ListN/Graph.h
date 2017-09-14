@@ -2,7 +2,7 @@
 #define Graph_H
 
 #include "Edge.h"
-#include <vector>
+#include <list>
 
 using namespace std;
 
@@ -13,20 +13,17 @@ class Graph
         ~Graph();
         void fillVector();
         void print();
-        bool checkIfGraphConnected(vector<Edge>&, int);
+        bool checkIfGraphConnected(list<Edge>&, int);
         bool checkIfEdgeExistsInGraph(Edge);
         int getEdgeIndex(Edge);
         bool checkIfAllEdgesEvenDegree();
         int getNeighboursCount(int);
         bool checkIfStillConnected(Edge, int);
         void determineEulerCycle();
-        int getZeroDegreeCount(int);
-        void removeEdgeWithOneNeighbour(int&);
-        void removeEdgeWithMoreNeighbour(int&);
 
     private:
-        vector<Edge> edges;
-        vector<int> vertices;
+        list<Edge> edges;
+        list<int> vertices;
 
 };
 
