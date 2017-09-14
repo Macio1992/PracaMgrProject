@@ -7,6 +7,24 @@
 
 using namespace std;
 
+template<typename S>
+concept bool Sequence() {
+  return requires (S seq) {
+    { seq.front() } -> const typename S::value_type&;
+    { seq.back() } -> const typename S::value_type&;
+  };
+};
+
+template<typename S>
+concept bool Associative_container() {
+  return requires (S s, typename S::key_type_t k) {
+      { s.empty() } -> bool;
+      { s.size() } -> int;
+      { s.find(k) } -> typename S::iterator_t;
+      { s.count(k) } -> int;
+  };
+};
+
 template<typename T, typename U>
 Graph<T,U>::Graph(){}
 
@@ -16,7 +34,7 @@ Graph<T,U>::~Graph(){}
 template<typename T, typename U>
 void Graph<T,U>::fill(){
 
-    ifstream file("../data/file2.txt");
+    ifstream file("../data/file1.txt");
 
     if(!file) {
         cout << "Error while opening the file"<<endl;
@@ -47,7 +65,7 @@ void Graph<T,U>::fill(){
 
 }
 
-template<typename T, typename U>
+template<typename T, typename U> requires Sequence<T>() && Associative_container<T>()
 void Graph<T,U>::print(){
     cout<<endl<<"Graph: "<<endl<<endl;
     for(typename T::iterator it = edges.begin(); it != edges.end(); ++it)

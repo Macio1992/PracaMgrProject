@@ -3,12 +3,13 @@
 #include "Graph.cpp"
 #include "Edge.h"
 #include <vector>
+#include <list>
 
 using namespace std;
 
 int main() {
 
-    Graph<vector<Edge>, vector<int>> g;
+    Graph<list<Edge>, vector<int>> g;
     g.fill();
     g.print();
     g.determineEulerCycle();
