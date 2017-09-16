@@ -11,7 +11,6 @@ public:
 	Edge(int, int);
 	~Edge();
 	bool operator()(Edge);
-	bool operator()(int);
 	bool operator<(const Edge&) const;
 	int getA() const;
 	void setA(int);
@@ -22,6 +21,9 @@ public:
 private:
 	int a;
 	int b;
+
 };
+
+
 
 #endif // !Edge_H

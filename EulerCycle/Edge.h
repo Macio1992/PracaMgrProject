@@ -3,16 +3,16 @@
 
 #include <iostream>
 
-#include <string>
-
 using namespace std;
 
 class Edge {
     public:
         Edge(int, int);
         ~Edge();
-        bool operator==(Edge);
+        // bool operator==(Edge);
         bool operator==(int);
+        bool operator()(Edge);
+        bool operator<(const Edge&) const;
         int getA() const;
         int getB() const;
         string toString() const;

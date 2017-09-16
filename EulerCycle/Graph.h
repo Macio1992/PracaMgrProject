@@ -2,6 +2,7 @@
 #define Graph_H
 
 #include "Edge.h"
+// #include "Concepts.hpp"
 
 template<typename T, typename U>
 class Graph {
@@ -9,6 +10,7 @@ class Graph {
     public:
         Graph();
         ~Graph();
+        // void sortVertices();
         void fill();
         void print();
         bool checkIfGraphConnected(T&, int, int);

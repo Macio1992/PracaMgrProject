@@ -14,6 +14,13 @@ bool Edge::operator==(Edge e){
 bool Edge::operator==(int value){
     return (value == a || value == b);
 }
+bool Edge::operator()(Edge edge){
+	return (edge.getA() == a && edge.getB() == b);
+}
+
+bool Edge::operator<(const Edge &e) const{
+	return true;
+}
 int Edge::getA() const {
     return a;
 }

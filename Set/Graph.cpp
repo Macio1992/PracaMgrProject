@@ -5,6 +5,7 @@
 #include <fstream>
 #include <stack>
 #include <algorithm>
+#include <set>
 
 using namespace std;
 
@@ -14,7 +15,7 @@ Graph::~Graph(){}
 
 void Graph::fillSet(){
 
-    ifstream file("../data/file2.txt");
+    ifstream file("../data/file3.txt");
 
     if(!file) {
         cout << "Error while opening the file"<<endl;
@@ -51,87 +52,95 @@ void Graph::print(){
     cout<<endl;
 }
 
-bool Graph::checkIfGraphConnected(set<Edge> &ed, int x){
-
+bool Graph::checkIfGraphConnected(set<Edge> &ed, int x, int startVertice) {
+    
     bool *visited = new bool[vertices.size()];
-    stack<int>stack;
-	int vc = 0;
-
     for (int i = 0; i < vertices.size(); i++) visited[i] = false;
 
-    stack.push(0);
-    visited[0] = true;
+    stack<int>stack;
+    int vc = 0;
+    
+    stack.push(startVertice);
+    visited[startVertice] = true;
     
     while (!stack.empty()) {
-		int v = stack.top();
-		stack.pop();
-		vc++;
-        
-        for(auto e : ed){
-            if(e.getA() == v && !visited[e.getB()]){
-                visited[e.getB()] = true;
-                stack.push(e.getB());
-            } else if(e.getB() == v && !visited[e.getA()]){
-                visited[e.getA()] = true;
-                stack.push(e.getA());
+        int v = stack.top();
+        stack.pop();
+        vc++;
+
+        for(set<Edge>::iterator it = ed.begin(); it != ed.end(); it++){
+            if(it->getA() == v && !visited[it->getB()]){
+                visited[it->getB()] = true;
+                stack.push(it->getB());
+            } else if(it->getB() == v && !visited[it->getA()]){
+                visited[it->getA()] = true;
+                stack.push(it->getA());
             }
         }
 
-	}
-	
-	delete [] visited;
+    }
 
-    return (vc == vertices.size()-x) ? true : false;
+    delete [] visited;
+
+    return (vc == vertices.size()-x);
 
 }
 
 bool Graph::checkIfEdgeExistsInGraph(Edge e){
-    return (find_if(edges.begin(), edges.end(), Edge(e.getA(), e.getB())) != edges.end()) ? true : false;
+    return (find_if(edges.begin(), edges.end(), Edge(e.getA(), e.getB())) != edges.end());
 }
 
 int Graph::getEdgeIndex(Edge e){
-    return distance(edges.begin(), (find_if(edges.begin(), edges.end(), Edge(e.getA(), e.getB()))));
+    return distance(edges.begin(), find_if(edges.begin(), edges.end(), Edge(e.getA(), e.getB())));
 }
 
 bool Graph::checkIfAllEdgesEvenDegree(){
     int counter = 0, i = 0;
-    
     for(auto v : vertices){
         for(auto e : edges){
             if(e.getA() == v || e.getB() == v) counter++;
         }
         if(counter % 2 == 0) i++;
     }
-
-    return (i == vertices.size()) ? true : false;
-    
+    return (i == vertices.size());
 }
 
 int Graph::getNeighboursCount(int v){
     int l = 0;
-    
     for(auto e : edges)
         if(e.getA() == v || e.getB() == v)
             l++;
-
     return l;
 }
 
-bool Graph::checkIfStillConnected(Edge e, int x){
-
-    set<Edge> tmp;
+bool Graph::checkIfStillConnected(Edge e, int x, int startVertice){
     
+    set<Edge> tmp;
+
     for(auto e : edges)
         tmp.insert(e);
 
-    for(auto t : tmp){
-        if(t.getA() == e.getA() && t.getB() == e.getB()){
-            tmp.erase(t);
+    for(set<Edge>::iterator it = tmp.begin(); it != tmp.end(); it++)
+		if (it->getA() == e.getA() && it->getB() == e.getB()) {
+			tmp.erase(it);
+			it = prev(tmp.end());
         }
+        
+    return checkIfGraphConnected(tmp, x, startVertice);
+}
+
+int Graph::getZeroDegreeCount(){
+    int l = 0;
+    int zeroDegreeVertex = 0;
+    for(auto v : vertices){
+        l = 0;
+        for(auto e : edges){
+            if(e.getA() == v || e.getB() == v) l++;
+        }
+        if(l == 0) zeroDegreeVertex++;
     }
 
-    return checkIfGraphConnected(tmp, x) ? true : false;
-
+    return zeroDegreeVertex;
 }
 
 findByAOrB::findByAOrB(int value) : value(value){}
@@ -140,57 +149,45 @@ bool findByAOrB::operator()(Edge edge) {
 	return (edge.getA() == value || edge.getB() == value);
 }
 
-void Graph::printEulerCycle(){
-    cout << endl << "Euler cycle: " <<endl;
+void Graph::removeEdgeWithOneNeighbour(int &v){
     
-    cout << endl;
+    set<Edge>::iterator it = find_if(edges.begin(), edges.end(), findByAOrB(v));
+    
+    if(it->getA() == v) v = it->getB();
+    else v = it->getA();
+
+    edges.erase(it);
+}
+
+void Graph::removeEdgeWithMoreNeighbour(int &v){
+    for(set<Edge>::iterator i = edges.begin(); i != edges.end(); i++){
+        if(i->getA() == v && checkIfStillConnected(*i, getZeroDegreeCount(), v)){
+            v = i->getB();
+            edges.erase(i);
+            i = prev(edges.end());
+        } else if(i->getB() == v && checkIfStillConnected(*i, getZeroDegreeCount(), v)){
+            v = i->getA();
+            edges.erase(i);
+            i = prev(edges.end());
+        }
+    }
 }
 
 void Graph::determineEulerCycle(){
-
-    bool condition = (checkIfGraphConnected(edges, 0) && checkIfAllEdgesEvenDegree());
-    int zeroDegreeVertex = 0, l = 0, v = 3;
+    
+    int v = 1;
+    bool condition = (checkIfGraphConnected(edges, 0, v) && checkIfAllEdgesEvenDegree());
 
     if(condition){
-
         cout << "Euler cycle:" << endl << endl << v;
-
         while(!edges.empty()){
-            l = 0;
-            zeroDegreeVertex = 0;
-            for(auto v : vertices){
-                l = 0;
-                for(auto e : edges){
-                    if(e.getA() == v || e.getB() == v) l++;
-                }
-                if(l == 0) zeroDegreeVertex++;
-            }
-
             switch(getNeighboursCount(v)){
                 case 1 : {
-                    
-                    set<Edge>::iterator it = find_if(edges.begin(), edges.end(), findByAOrB(v));
-                    
-                    if(it->getA() == v) v = it->getB();
-                    else v = it->getA();
-
-                    edges.erase(it);
-
+                    removeEdgeWithOneNeighbour(v);
                     break;
                 }
                 default: {
-
-                    for(set<Edge>::iterator it = edges.begin(); it != edges.end(); it++){
-                        if(it->getA() == v && checkIfStillConnected(*it, zeroDegreeVertex)){
-                            v = it->getB();
-                            edges.erase(it);
-                        }
-                        else if(it->getB() == v && checkIfStillConnected(*it, zeroDegreeVertex)){
-                            v = it->getA();
-                            edges.erase(it);
-                        }
-                    }
-                   
+                    removeEdgeWithMoreNeighbour(v);
                     break;
                 }
             }
@@ -199,10 +196,10 @@ void Graph::determineEulerCycle(){
         cout << endl << endl;
     } else {
         cout<<"Invalid graph."<<endl;
-        if(!checkIfGraphConnected(edges, 0))
+        if(!checkIfGraphConnected(edges, 0, v))
             cout <<"Graph is not connected"<<endl;
         else if(!checkIfAllEdgesEvenDegree())
             cout <<"Not all the edges are even"<<endl;
     }
-
+    
 }

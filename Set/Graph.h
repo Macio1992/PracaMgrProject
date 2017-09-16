@@ -13,18 +13,21 @@ public:
     ~Graph();
     void fillSet();
     void print();
-    bool checkIfGraphConnected(set<Edge>&, int);
+    bool checkIfGraphConnected(set<Edge>&, int, int);
     bool checkIfEdgeExistsInGraph(Edge);
     int getEdgeIndex(Edge);
     bool checkIfAllEdgesEvenDegree();
-    int getNeighboursCount(int v);
-    bool checkIfStillConnected(Edge e, int x);
-    void printEulerCycle();
+    int getNeighboursCount(int);
+    bool checkIfStillConnected(Edge, int, int);
+    int getZeroDegreeCount();
+    void removeEdgeWithOneNeighbour(int&);
+    void removeEdgeWithMoreNeighbour(int&);
     void determineEulerCycle();
 
 private:
 	set<Edge> edges;
     set<int> vertices;
+    int value;
     
 };
 

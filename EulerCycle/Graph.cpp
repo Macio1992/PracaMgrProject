@@ -1,16 +1,28 @@
 #include "Graph.h"
 #include "Edge.h"
+#include "Concepts.cpp"
 
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <stack>
+#include <vector>
 
 template<typename T, typename U>
 Graph<T,U>::Graph() {}
 
 template<typename T, typename U>
 Graph<T,U>::~Graph() {}
+
+template<typename T, Sequence U>
+void sortVertices() {
+    sort(vertices2.begin(), vertices2.end());
+}
+
+template<typename T, Associative_container U>
+void sortVertices() {
+    
+}
 
 template<typename T, typename U>
 void Graph<T,U>::fill() {
@@ -38,10 +50,13 @@ void Graph<T,U>::fill() {
 
     }
 
-    sort(vertices.begin(), vertices.end());
+    // sortVertices<T,U>();
+
     file.close();
 
 }
+
+
 
 template<typename T, typename U>
 void Graph<T,U>::print() { 
@@ -86,7 +101,7 @@ bool Graph<T,U>::checkIfGraphConnected(T &ed, int x, int startVertice) {
 
 }
 
-template<typename T, typename U>
+template<Associative_container T, typename U>
 bool Graph<T,U>::checkIfEdgeExistsInGraph(Edge e){
     return (find(edges.begin(), edges.end(), Edge(e.getA(), e.getB())) != edges.end());
 }
