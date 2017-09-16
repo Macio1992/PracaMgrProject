@@ -141,10 +141,10 @@ void readData(ifstream& file, A& seq, V& vertices){
 
         seq.insert(e);
 
-        typename V::iterator it = find(vertices.begin(), vertices.end(), a);
+        typename V::iterator it = find_if(vertices.begin(), vertices.end(), a);
         if(it == vertices.end()) vertices.insert(a);
 
-        it = find(vertices.begin(), vertices.end(), b);
+        it = find_if(vertices.begin(), vertices.end(), b);
         if(it == vertices.end()) vertices.insert(b);
 
     }

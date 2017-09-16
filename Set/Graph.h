@@ -27,7 +27,6 @@ public:
 private:
 	set<Edge> edges;
     set<int> vertices;
-    int value;
     
 };
 

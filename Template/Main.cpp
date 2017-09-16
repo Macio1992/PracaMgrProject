@@ -4,12 +4,13 @@
 #include "Edge.h"
 #include <vector>
 #include <list>
+#include<set>
 
 using namespace std;
 
 int main() {
 
-    Graph<list<Edge>, vector<int>> g;
+    Graph<set<Edge>, vector<int>> g;
     g.fill();
     g.print();
     g.determineEulerCycle();
