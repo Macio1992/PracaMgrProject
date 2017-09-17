@@ -5,6 +5,39 @@
 template<typename R>
 using Iterator_type = decltype(std::begin(std::declval<R&>()));
 
+template<typename T>
+using Value_type = typename T::value_type;
+
+template<typename T>
+using Difference_type = typename T::difference_type;
+
+namespace iter_impl {
+  
+  
+  template<typename T>
+  struct get_iterator_category;
+  
+  
+  template<typename T>
+  struct get_iterator_category<T*>
+  {
+    using type = std::random_access_iterator_tag;
+  };
+  
+  
+  template<typename T>
+    requires requires () { typename T::iterator_category; }
+  struct get_iterator_category<T>
+  {
+    using type = typename T::iterator_category;
+  };
+  
+  
+  } // namespace iter_impl
+
+template<typename I>
+using Iterator_category = typename iter_impl::get_iterator_category<I>::type;
+
 template<typename T, typename U>
 concept bool Same() {
     return std::is_same<T,U>::value;
@@ -15,7 +48,7 @@ concept bool Conditional()
 {
   return requires(T t)
   {
-    (bool)t;        // Explicitly convertible
+    (bool)t;
   };
 }
 
@@ -216,4 +249,68 @@ concept bool Associative_container() {
         { s.find(k) } -> typename S::iterator;
         { s.count(k) } -> int;
     };
+}
+
+template<typename I>
+concept bool Readable()
+{
+  return requires (I i) { {*i} -> const Value_type<I>&; };
+}
+
+template<typename I>
+concept bool Incrementable()
+{
+  return requires (I i)
+  {
+    typename Difference_type<I>;
+    {++i} -> I&;
+    {i++} -> I;
+  };
+}
+
+template<typename T, typename U>
+concept bool 
+Convertible() 
+{
+  return std::is_convertible<T, U>::value;
+  // return __is_convertible_to(T, U);
+}
+
+template<typename T, typename U>
+concept bool 
+Derived() 
+{
+  return __is_base_of(U, T) && Convertible<T, U>();
+}
+
+template<typename I>
+concept bool Forward_iterator()
+{
+  return Readable<I>() && Incrementable<I>()
+      && Derived<Iterator_category<I>, std::forward_iterator_tag>();
+}
+
+template<typename I>
+concept bool Bidirectional_iterator()
+{
+  return Forward_iterator<I>() && requires (I i)
+  {
+   {--i} -> I&;
+   {i--} -> I;
+  };
+}
+
+template<typename I>
+concept bool Random_access_iterator() {
+  return Bidirectional_iterator<I>()
+      && requires (I i, I j, Difference_type<I> n)
+  {
+    {i += n} -> I&;
+    {i + n} -> I;
+    {n + i} -> I;
+    {i -= n} -> I&;
+    {i - n} -> I;
+    {i - j} -> Difference_type<I>;
+    {i[n]} -> decltype(*i);
+  };
 }

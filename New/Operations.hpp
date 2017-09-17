@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <fstream>
 #include <stack>
+#include <set>
 
 using namespace std;
 
@@ -20,17 +21,28 @@ struct findByAOrB {
         int value;
 };
 
-template<Sequence S>
-void sort(S &seq){
-    sort(seq.begin(), seq.end());
+template<Sequence S, Random_access_iterator R>
+void sortVertices(S &seq){
+    // sort(seq.begin(), seq.end());
+}
+
+template<Sequence S, Bidirectional_iterator R>
+void sortVertices(S &seq){
+    // seq.sort();
+}
+
+template<Sequence S, Forward_iterator R>
+void sortVertices(S &seq){
+    // seq.sort();
 }
 
 template<Associative_container A>
-void sort(A &seq){}
+void sortVertices(A &seq){}
 
 template<Sequence S, Sequence V>
 void readData(ifstream &file, S &seq, V &vertices){
 
+    cout<<"Sequence"<<endl;
     int a,b;
 
     while(file >> a >> b){
@@ -52,6 +64,7 @@ void readData(ifstream &file, S &seq, V &vertices){
 template<Associative_container S, Associative_container V>
 void readData(ifstream &file, S &seq, V &vertices){
 
+    cout<<"ASS"<<endl;
     int a,b;
 
     while(file >> a >> b){
@@ -70,7 +83,7 @@ void readData(ifstream &file, S &seq, V &vertices){
 
 }
 
-template<typename E, typename V>
+template<Sequence E, Sequence V>
 void fill(E &edges, V &vertices){
 
     ifstream file("../data/file3.txt");
@@ -81,7 +94,23 @@ void fill(E &edges, V &vertices){
     }
 
     readData(file, edges, vertices);
-    sort(vertices);
+    sortVertices<V, typename V::iterator>(vertices);
+    file.close();
+
+}
+
+template<Associative_container E, Associative_container V>
+void fill(E &edges, V &vertices){
+
+    ifstream file("../data/file3.txt");
+    
+    if(!file){
+        cout <<"Error input file";
+        exit(0);
+    }
+
+    readData(file, edges, vertices);
+    sortVertices<V>(vertices);
     file.close();
 
 }
@@ -141,7 +170,7 @@ bool checkIfEdgeExistsInGraph(A &edges, Edge e){
 
 template<typename E>
 int getEdgeIndex(E &edges, Edge e){
-    return distance(edges.begin(), find(edges.begin(), edges.end(), Edge(e.getA(), e.getB())));
+    return distance(edges.begin(), find_if(edges.begin(), edges.end(), Edge(e.getA(), e.getB())));
 }
 
 template<typename E, typename V>
@@ -229,12 +258,25 @@ void removeEdgeWithOneNeighbour(S &edges, int &v){
 template<Associative_container A>
 void removeEdgeWithOneNeighbour(A &edges, int &v){
     
-    typename A::iterator it = find_if(edges.begin(), edges.end(), findByAOrB(v));
-    
-    if(it->getA() == v) v = it->getB();
-    else v = it->getA();
+    // cout<<"przekazane v:"<<v<<endl;
+    // typename A::iterator it = find_if(edges.begin(), edges.end(), findByAOrB(v));
+    typename A::iterator it2;
+    for(typename A::iterator it = edges.begin(); it != edges.end(); it++){
+        if(it->getA() == v || it->getB() == v){
+            // cout<<it->toString();
+            // cout<<"HEHJHJJJJJ"<<endl;
+            it2 = it;
+            if(it->getA() == v) v = it->getB();
+            else v = it->getA();
+            it = prev(edges.end());
+        }
+    }
 
-    edges.erase(it);
+    // cout<<"found: "<<it2->toString();
+    // if(it->getA() == v) v = it->getB();
+    // else v = it->getA();
+
+    edges.erase(it2);
 }
 
 template<typename E, typename V>
@@ -259,28 +301,28 @@ void determineEulerCycle(E &edges, V &vertices){
 
     bool condition = (checkIfGraphConnected(edges, vertices, 0, v) && checkIfAllEdgesEvenDegree(edges, vertices));
     
-        if(condition){
-            cout << "Euler cycle:" << endl << endl << v;
-            while(!edges.empty()){
-                switch(getNeighboursCount(edges, v)){
-                    case 1 : {
-                        removeEdgeWithOneNeighbour(edges, v);
-                        break;
-                    }
-                    default: {
-                        removeEdgeWithMoreNeighbour(edges, v, vertices);
-                        break;
-                    }
+    if(condition){
+        cout << "Euler cycle:" << endl << endl << v;
+        while(!edges.empty()){
+            switch(getNeighboursCount(edges, v)){
+                case 1 : {
+                    removeEdgeWithOneNeighbour(edges, v);
+                    break;
                 }
-                cout <<" -> "<<v;
+                default: {
+                    removeEdgeWithMoreNeighbour(edges, v, vertices);
+                    break;
+                }
             }
-            cout << endl << endl;
-        } else {
-            cout<<"Invalid graph."<<endl;
-            if(!checkIfGraphConnected(edges, vertices, 0, v))
-                cout <<"Graph is not connected"<<endl;
-            else if(!checkIfAllEdgesEvenDegree(edges, vertices))
-                cout <<"Not all the edges are even"<<endl;
+            cout <<" -> "<<v;
         }
+        cout << endl << endl;
+    } else {
+        cout<<"Invalid graph."<<endl;
+        if(!checkIfGraphConnected(edges, vertices, 0, v))
+            cout <<"Graph is not connected"<<endl;
+        else if(!checkIfAllEdgesEvenDegree(edges, vertices))
+            cout <<"Not all the edges are even"<<endl;
+    }
 
 }
